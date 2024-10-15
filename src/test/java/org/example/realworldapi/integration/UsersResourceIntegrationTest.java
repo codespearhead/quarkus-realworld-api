@@ -6,17 +6,24 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.http.HttpStatus;
-import org.example.realworldapi.AbstractIntegrationTest;
 import org.example.realworldapi.application.web.model.request.LoginRequest;
 import org.example.realworldapi.application.web.model.request.NewUserRequest;
+import org.example.realworldapi.util.IntegrationTestUtil;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
+@TestTransaction
+public class UsersResourceIntegrationTest {
+
+  @Inject ObjectMapper objectMapper;
+  @Inject IntegrationTestUtil integrationTestUtil;
 
   private final String USERS_RESOURCE_PATH = API_PREFIX + "/users";
   private final String LOGIN_PATH = USERS_RESOURCE_PATH + "/login";
@@ -33,7 +40,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(newUser))
+        .body(this.objectMapper.writeValueAsString(newUser))
         .when()
         .post(USERS_RESOURCE_PATH)
         .then()
@@ -62,7 +69,9 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     String userPassword = "123";
 
-    final var user = createUserEntity("user1", "user1@mail.com", "bio", "image", userPassword);
+    final var user =
+        integrationTestUtil.createUserEntity(
+            "user1", "user1@mail.com", "bio", "image", userPassword);
 
     NewUserRequest newUser = new NewUserRequest();
     newUser.setUsername("user2");
@@ -71,7 +80,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(newUser))
+        .body(this.objectMapper.writeValueAsString(newUser))
         .when()
         .post(USERS_RESOURCE_PATH)
         .then()
@@ -86,7 +95,9 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     String userPassword = "123";
 
-    final var user = createUserEntity("user1", "user1@mail.com", "bio", "image", userPassword);
+    final var user =
+        integrationTestUtil.createUserEntity(
+            "user1", "user1@mail.com", "bio", "image", userPassword);
 
     NewUserRequest newUser = new NewUserRequest();
     newUser.setUsername(user.getUsername());
@@ -95,7 +106,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(newUser))
+        .body(this.objectMapper.writeValueAsString(newUser))
         .when()
         .post(USERS_RESOURCE_PATH)
         .then()
@@ -110,7 +121,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(newUser))
+        .body(this.objectMapper.writeValueAsString(newUser))
         .when()
         .post(USERS_RESOURCE_PATH)
         .then()
@@ -135,7 +146,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(newUser))
+        .body(this.objectMapper.writeValueAsString(newUser))
         .when()
         .post(USERS_RESOURCE_PATH)
         .then()
@@ -155,7 +166,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(loginRequest))
+        .body(this.objectMapper.writeValueAsString(loginRequest))
         .when()
         .post(LOGIN_PATH)
         .then()
@@ -175,7 +186,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(loginRequest))
+        .body(this.objectMapper.writeValueAsString(loginRequest))
         .when()
         .post(LOGIN_PATH)
         .then()
@@ -187,7 +198,8 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
   public void givenAInvalidLoginPassword_whenExecuteLoginEndpoint_shouldReturnUnauthorized()
       throws JsonProcessingException {
 
-    final var user = createUserEntity("user1", "user1@mail.com", "123", "bio", "image");
+    final var user =
+        integrationTestUtil.createUserEntity("user1", "user1@mail.com", "123", "bio", "image");
 
     LoginRequest loginRequest = new LoginRequest();
     loginRequest.setEmail(user.getEmail());
@@ -195,7 +207,7 @@ public class UsersResourceIntegrationTest extends AbstractIntegrationTest {
 
     given()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(objectMapper.writeValueAsString(loginRequest))
+        .body(this.objectMapper.writeValueAsString(loginRequest))
         .when()
         .post(LOGIN_PATH)
         .then()
